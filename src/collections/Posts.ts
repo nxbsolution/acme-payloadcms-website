@@ -119,8 +119,58 @@ export const Posts: CollectionConfig = {
                     type: 'text',
                   },
                 ],
-
                 interfaceName: 'BrBlock',
+              },
+              {
+                slug: 'commandLine',
+                fields: [
+                  {
+                    name: 'command',
+                    type: 'text',
+                  },
+                ],
+                interfaceName: 'CommandLineBlock',
+              },
+              {
+                slug: 'templateCards',
+                fields: [
+                  {
+                    name: 'templates',
+                    type: 'array',
+                    fields: [
+                      {
+                        name: 'name',
+                        type: 'text',
+                        required: true,
+                      },
+                      {
+                        name: 'description',
+                        type: 'textarea',
+                        required: true,
+                      },
+                      {
+                        name: 'image',
+                        type: 'text',
+                        required: true,
+                      },
+                      {
+                        name: 'slug',
+                        type: 'text',
+                        required: true,
+                      },
+                      {
+                        name: 'order',
+                        type: 'number',
+                        required: true,
+                      },
+                    ],
+                    labels: {
+                      plural: 'Templates',
+                      singular: 'Template',
+                    },
+                  },
+                ],
+                interfaceName: 'TemplateCardsBlock',
               },
             ],
           }),
