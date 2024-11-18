@@ -24,7 +24,7 @@ export interface Config {
     'reusable-content': ReusableContent;
     users: User;
     partners: Partner;
-    my_blocks: MyBlock;
+    my_blocks_demo_collection: MyBlocksDemoCollection;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -47,7 +47,7 @@ export interface Config {
     'reusable-content': ReusableContentSelect<false> | ReusableContentSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
-    my_blocks: MyBlocksSelect<false> | MyBlocksSelect<true>;
+    my_blocks_demo_collection: MyBlocksDemoCollectionSelect<false> | MyBlocksDemoCollectionSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -4786,25 +4786,25 @@ export interface Partner {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "my_blocks".
+ * via the `definition` "my_blocks_demo_collection".
  */
-export interface MyBlock {
+export interface MyBlocksDemoCollection {
   id: string;
   temp_value?: string | null;
-  my_test_blocks?:
+  my_blocks?:
     | (
         | {
             my_text1?: string | null;
             my_text2?: string | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'my_name_block';
+            blockType: 'my_name_block_fields';
           }
         | {
             my_age?: number | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'my_age_block';
+            blockType: 'my_age_block_fields';
           }
       )[]
     | null;
@@ -4915,8 +4915,8 @@ export interface PayloadLockedDocument {
         value: string | Partner;
       } | null)
     | ({
-        relationTo: 'my_blocks';
-        value: string | MyBlock;
+        relationTo: 'my_blocks_demo_collection';
+        value: string | MyBlocksDemoCollection;
       } | null)
     | ({
         relationTo: 'forms';
@@ -8115,14 +8115,14 @@ export interface PartnersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "my_blocks_select".
+ * via the `definition` "my_blocks_demo_collection_select".
  */
-export interface MyBlocksSelect<T extends boolean = true> {
+export interface MyBlocksDemoCollectionSelect<T extends boolean = true> {
   temp_value?: T;
-  my_test_blocks?:
+  my_blocks?:
     | T
     | {
-        my_name_block?:
+        my_name_block_fields?:
           | T
           | {
               my_text1?: T;
@@ -8130,7 +8130,7 @@ export interface MyBlocksSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        my_age_block?:
+        my_age_block_fields?:
           | T
           | {
               my_age?: T;
