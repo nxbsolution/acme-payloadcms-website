@@ -32,6 +32,7 @@ import { MainMenu } from './globals/MainMenu'
 import { PartnerProgram } from './globals/PartnerProgram'
 import redeployWebsite from './scripts/redeployWebsite'
 import syncDocs from './scripts/syncDocs'
+import { MyBlocksCollection } from './collections/MyBlocks'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -71,6 +72,7 @@ export default buildConfig({
     ReusableContent,
     Users,
     Partners,
+    MyBlocksCollection
   ],
   cors: [process.env.PAYLOAD_PUBLIC_APP_URL || '', 'https://payloadcms.com'].filter(Boolean),
   db: mongooseAdapter({

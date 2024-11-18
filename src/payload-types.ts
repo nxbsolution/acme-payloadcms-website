@@ -24,6 +24,7 @@ export interface Config {
     'reusable-content': ReusableContent;
     users: User;
     partners: Partner;
+    my_blocks: MyBlock;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -46,6 +47,7 @@ export interface Config {
     'reusable-content': ReusableContentSelect<false> | ReusableContentSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
+    my_blocks: MyBlocksSelect<false> | MyBlocksSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -4784,6 +4786,33 @@ export interface Partner {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "my_blocks".
+ */
+export interface MyBlock {
+  id: string;
+  temp_value?: string | null;
+  my_test_blocks?:
+    | (
+        | {
+            my_text1?: string | null;
+            my_text2?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'my_name_block';
+          }
+        | {
+            my_age?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'my_age_block';
+          }
+      )[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -4884,6 +4913,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'partners';
         value: string | Partner;
+      } | null)
+    | ({
+        relationTo: 'my_blocks';
+        value: string | MyBlock;
       } | null)
     | ({
         relationTo: 'forms';
@@ -8079,6 +8112,34 @@ export interface PartnersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "my_blocks_select".
+ */
+export interface MyBlocksSelect<T extends boolean = true> {
+  temp_value?: T;
+  my_test_blocks?:
+    | T
+    | {
+        my_name_block?:
+          | T
+          | {
+              my_text1?: T;
+              my_text2?: T;
+              id?: T;
+              blockName?: T;
+            };
+        my_age_block?:
+          | T
+          | {
+              my_age?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
