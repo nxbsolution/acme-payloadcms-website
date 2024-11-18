@@ -81,9 +81,15 @@ const nextConfig = withBundleAnalyzer({
         hostname: 'img.youtube.com',
         port: '',
       },
+      // {
+      //   protocol: 'https',
+      //   hostname: process.env.BLOB_STORE_ID,
+      // },
       {
         protocol: 'https',
-        hostname: process.env.BLOB_STORE_ID,
+        hostname: 'ejrpaqynmhhidykbqaci.supabase.co',
+        pathname: '/storage/v1/object/**',
+        port: '',
       },
     ].filter(Boolean),
   },

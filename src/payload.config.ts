@@ -6,7 +6,8 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { BlocksFeature, UploadFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+// import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3';
 import link from '@root/fields/link'
 import { LabelFeature } from '@root/fields/richText/features/label/server'
 import { LargeBodyFeature } from '@root/fields/richText/features/largeBody/server'
@@ -346,16 +347,33 @@ export default buildConfig({
         },
       },
     }),
-    vercelBlobStorage({
-      cacheControlMaxAge: 60 * 60 * 24 * 365, // 1 year
+    // vercelBlobStorage({
+    //   cacheControlMaxAge: 60 * 60 * 24 * 365, // 1 year
+    //   collections: {
+    //     media: {
+    //       generateFileURL: ({ filename }) => `https://${process.env.BLOB_STORE_ID}/${filename}`,
+    //     },
+    //   },
+    //   enabled: Boolean(process.env.BLOB_STORAGE_ENABLED) || false,
+    //   token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    // }),
+    s3Storage({
       collections: {
         media: {
-          generateFileURL: ({ filename }) => `https://${process.env.BLOB_STORE_ID}/${filename}`,
+          prefix: 'media',
         },
       },
-      enabled: Boolean(process.env.BLOB_STORAGE_ENABLED) || false,
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-    }),
+      bucket: process.env.S3_BUCKET!,
+      config: {
+        forcePathStyle: true,
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+        },
+        region: process.env.S3_REGION!,
+        endpoint: process.env.S3_ENDPOINT!,
+      },
+    })
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
