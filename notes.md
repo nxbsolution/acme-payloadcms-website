@@ -1,3 +1,6 @@
+# mongodb atlas account on nexusberry.solution@gmail.com 
+# supabase (dev project at nexusberry.solution)
+
 # RenderBlocks excludes few blocks: 
 
 # RenderBlocks is used at the from following collections > pages:
