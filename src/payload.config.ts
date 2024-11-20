@@ -11,6 +11,7 @@ import { s3Storage } from '@payloadcms/storage-s3';
 import link from '@root/fields/link'
 import { LabelFeature } from '@root/fields/richText/features/label/server'
 import { LargeBodyFeature } from '@root/fields/richText/features/largeBody/server'
+import { revalidateTag } from 'next/cache'
 import nodemailerSendgrid from 'nodemailer-sendgrid'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -63,14 +64,14 @@ export default buildConfig({
     Docs,
     Media,
     Pages,
-    Industries,
-    Specialties,
-    Regions,
-    Budgets,
     Posts,
     ReusableContent,
     Users,
     Partners,
+    Industries,
+    Specialties,
+    Regions,
+    Budgets,
   ],
   cors: [process.env.PAYLOAD_PUBLIC_APP_URL || '', 'https://payloadcms.com'].filter(Boolean),
   db: mongooseAdapter({
@@ -135,7 +136,7 @@ export default buildConfig({
                 name: 'richText',
                 type: 'richText',
                 editor: lexicalEditor({
-                  features: ({ rootFeatures }) => [...rootFeatures],
+                  features: [...defaultFeatures],
                 }),
               },
             ],
@@ -213,6 +214,40 @@ export default buildConfig({
             ],
             interfaceName: 'TemplateCardsBlock',
           },
+          {
+            slug: 'banner',
+            fields: [
+              {
+                name: 'type',
+                type: 'select',
+                defaultValue: 'default',
+                options: [
+                  {
+                    label: 'Default',
+                    value: 'default',
+                  },
+                  {
+                    label: 'Success',
+                    value: 'success',
+                  },
+                  {
+                    label: 'Warning',
+                    value: 'warning',
+                  },
+                  {
+                    label: 'Error',
+                    value: 'error',
+                  },
+                ],
+              },
+              {
+                name: 'content',
+                type: 'richText',
+                editor: lexicalEditor(),
+              },
+            ],
+            interfaceName: 'BannerBlock',
+          },
         ],
       }),
     ],
@@ -238,33 +273,6 @@ export default buildConfig({
   graphQL: {
     disablePlaygroundInProduction: false,
   },
-  onInit: async (payload) => {
-    Object.values(payload.collections).forEach(({ config, customIDType }) => {
-      console.log(config.slug, customIDType)
-    })
-
-    const existingDevUser = await payload.find({
-      collection: 'users',
-      where: {
-        email: {
-          equals: 'dev@payloadcms.com'
-        }
-      }
-    })
-
-    if (!existingDevUser.totalDocs) {
-      await payload.create({
-        collection: 'users',
-        data: {
-          email: 'dev@payloadcms.com',
-          firstName: 'sean',
-          lastName: 'spider',
-          password: 'test',
-          roles: ['admin']
-        }
-      })
-    }
-  },
   plugins: [
     formBuilderPlugin({
       formOverrides: {
@@ -278,11 +286,19 @@ export default buildConfig({
             },
           },
         ],
+        hooks: {
+          afterChange: [
+            ({ doc }) => {
+              revalidateTag(`form-${doc.title}`)
+              console.log(`Revalidated form: ${doc.title}`)
+            },
+          ],
+        },
       },
       formSubmissionOverrides: {
         hooks: {
           afterChange: [
-            ({ doc, req }) => {
+            async ({ doc, req }) => {
               req.payload.logger.info('IP of form submission')
               req.payload.logger.info({
                 allHeaders: req?.headers,
@@ -290,15 +306,16 @@ export default buildConfig({
                 realIP: req?.headers?.['x-real-ip'],
               })
 
+              const body = req.json ? await req.json() : {}
+
               const sendSubmissionToHubSpot = async (): Promise<void> => {
                 const { form, submissionData } = doc
                 const portalID = process.env.NEXT_PRIVATE_HUBSPOT_PORTAL_KEY
                 const data = {
                   context: {
-                    ...(req.body &&
-                      'hubspotCookie' in req.body && { hutk: req.body?.hubspotCookie }),
-                    pageName: req.body && 'pageName' in req.body ? req.body?.pageName : '',
-                    pageUri: req.body && 'pageUri' in req.body ? req.body?.pageUri : '',
+                    ...('hubspotCookie' in body && { hutk: body?.hubspotCookie }),
+                    pageName: 'pageName' in body ? body?.pageName : '',
+                    pageUri: 'pageUri' in body ? body?.pageUri : '',
                   },
                   fields: submissionData.map(key => ({
                     name: key.field,
@@ -323,7 +340,7 @@ export default buildConfig({
                   })
                 }
               }
-              void sendSubmissionToHubSpot()
+              await sendSubmissionToHubSpot()
             },
           ],
         },
