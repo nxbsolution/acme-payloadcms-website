@@ -10,12 +10,12 @@ import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import link from '@root/fields/link'
 import { LabelFeature } from '@root/fields/richText/features/label/server'
 import { LargeBodyFeature } from '@root/fields/richText/features/largeBody/server'
+import { revalidateTag } from 'next/cache'
 import nodemailerSendgrid from 'nodemailer-sendgrid'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Banner } from './blocks/Banner'
 import { CaseStudies } from './collections/CaseStudies'
 import { CommunityHelp } from './collections/CommunityHelp'
 import { Docs } from './collections/Docs'
@@ -32,7 +32,6 @@ import { MainMenu } from './globals/MainMenu'
 import { PartnerProgram } from './globals/PartnerProgram'
 import redeployWebsite from './scripts/redeployWebsite'
 import syncDocs from './scripts/syncDocs'
-import { revalidateTag } from 'next/cache'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -136,7 +135,7 @@ export default buildConfig({
                 name: 'richText',
                 type: 'richText',
                 editor: lexicalEditor({
-                  features: ({ rootFeatures }) => [...rootFeatures],
+                  features: [...defaultFeatures],
                 }),
               },
             ],
@@ -298,7 +297,7 @@ export default buildConfig({
       formSubmissionOverrides: {
         hooks: {
           afterChange: [
-            ({ doc, req }) => {
+            async ({ doc, req }) => {
               req.payload.logger.info('IP of form submission')
               req.payload.logger.info({
                 allHeaders: req?.headers,
@@ -339,7 +338,7 @@ export default buildConfig({
                   })
                 }
               }
-              void sendSubmissionToHubSpot()
+              await sendSubmissionToHubSpot()
             },
           ],
         },
