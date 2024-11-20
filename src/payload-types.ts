@@ -24,7 +24,6 @@ export interface Config {
     'reusable-content': ReusableContent;
     users: User;
     partners: Partner;
-    my_blocks_demo_collection: MyBlocksDemoCollection;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -47,7 +46,6 @@ export interface Config {
     'reusable-content': ReusableContentSelect<false> | ReusableContentSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     partners: PartnersSelect<false> | PartnersSelect<true>;
-    my_blocks_demo_collection: MyBlocksDemoCollectionSelect<false> | MyBlocksDemoCollectionSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -1350,7 +1348,6 @@ export interface Media {
   id: string;
   alt: string;
   darkModeFallback?: (string | null) | Media;
-  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -4925,48 +4922,6 @@ export interface Partner {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "my_blocks_demo_collection".
- */
-export interface MyBlocksDemoCollection {
-  id: string;
-  temp_value?: string | null;
-  my_blocks?:
-    | (
-        | {
-            my_text1?: string | null;
-            my_text2?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'my_name_block_fields';
-          }
-        | {
-            my_age?: number | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'my_age_block_fields';
-          }
-      )[]
-    | null;
-  my_richtext_lexical?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -5067,10 +5022,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'partners';
         value: string | Partner;
-      } | null)
-    | ({
-        relationTo: 'my_blocks_demo_collection';
-        value: string | MyBlocksDemoCollection;
       } | null)
     | ({
         relationTo: 'forms';
@@ -6049,7 +6000,6 @@ export interface DocsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   darkModeFallback?: T;
-  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -8319,35 +8269,6 @@ export interface PartnersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "my_blocks_demo_collection_select".
- */
-export interface MyBlocksDemoCollectionSelect<T extends boolean = true> {
-  temp_value?: T;
-  my_blocks?:
-    | T
-    | {
-        my_name_block_fields?:
-          | T
-          | {
-              my_text1?: T;
-              my_text2?: T;
-              id?: T;
-              blockName?: T;
-            };
-        my_age_block_fields?:
-          | T
-          | {
-              my_age?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  my_richtext_lexical?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
