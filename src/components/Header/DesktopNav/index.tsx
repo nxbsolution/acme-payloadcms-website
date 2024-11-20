@@ -49,6 +49,24 @@ export const DesktopNav: React.FC<DesktopNavType> = ({ tabs, hideBackground, men
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hideBackground])
+  const hoverTimeout = React.useRef<number | null>(null)
+
+  const handleMouseEnter = args => {
+    if (!activeDropdown) {
+      hoverTimeout.current = window.setTimeout(() => {
+        handleHoverEnter(args)
+      }, 200)
+    } else {
+      handleHoverEnter(args)
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout.current) {
+      clearTimeout(hoverTimeout.current)
+      hoverTimeout.current = null
+    }
+  }
 
   const handleHoverEnter = index => {
     setActiveTab(index)
@@ -96,7 +114,7 @@ export const DesktopNav: React.FC<DesktopNavType> = ({ tabs, hideBackground, men
         <div className={[classes.grid, 'grid'].join(' ')}>
           <div className={[classes.logo, 'cols-4'].join(' ')}>
             <Link href="/" className={classes.logo} prefetch={false} aria-label="Full Payload Logo">
-              <FullLogo />
+              <FullLogo className="w-auto h-[30px]" />
             </Link>
           </div>
           <div className={[classes.content, 'cols-8'].join(' ')}>
@@ -104,7 +122,11 @@ export const DesktopNav: React.FC<DesktopNavType> = ({ tabs, hideBackground, men
               {(tabs || []).map((tab, tabIndex) => {
                 const { enableDirectLink = false, enableDropdown = false } = tab
                 return (
-                  <div key={tabIndex} onMouseEnter={() => handleHoverEnter(tabIndex)}>
+                  <div
+                    key={tabIndex}
+                    onMouseEnter={() => handleMouseEnter(tabIndex)}
+                    onMouseLeave={() => handleMouseLeave()}
+                  >
                     <button
                       className={classes.tab}
                       ref={ref => {

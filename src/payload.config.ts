@@ -6,11 +6,11 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { BlocksFeature, UploadFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
-// import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
-import { s3Storage } from '@payloadcms/storage-s3';
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import link from '@root/fields/link'
 import { LabelFeature } from '@root/fields/richText/features/label/server'
 import { LargeBodyFeature } from '@root/fields/richText/features/largeBody/server'
+import { revalidateTag } from 'next/cache'
 import nodemailerSendgrid from 'nodemailer-sendgrid'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -32,7 +32,6 @@ import { MainMenu } from './globals/MainMenu'
 import { PartnerProgram } from './globals/PartnerProgram'
 import redeployWebsite from './scripts/redeployWebsite'
 import syncDocs from './scripts/syncDocs'
-import { MyBlocksCollection } from './collections/MyBlocks'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -72,7 +71,6 @@ export default buildConfig({
     ReusableContent,
     Users,
     Partners,
-    MyBlocksCollection
   ],
   cors: [process.env.PAYLOAD_PUBLIC_APP_URL || '', 'https://payloadcms.com'].filter(Boolean),
   db: mongooseAdapter({
@@ -137,7 +135,7 @@ export default buildConfig({
                 name: 'richText',
                 type: 'richText',
                 editor: lexicalEditor({
-                  features: ({ rootFeatures }) => [...rootFeatures],
+                  features: [...defaultFeatures],
                 }),
               },
             ],
@@ -214,7 +212,41 @@ export default buildConfig({
               },
             ],
             interfaceName: 'TemplateCardsBlock',
-          },          
+          },
+          {
+            slug: 'banner',
+            fields: [
+              {
+                name: 'type',
+                type: 'select',
+                defaultValue: 'default',
+                options: [
+                  {
+                    label: 'Default',
+                    value: 'default',
+                  },
+                  {
+                    label: 'Success',
+                    value: 'success',
+                  },
+                  {
+                    label: 'Warning',
+                    value: 'warning',
+                  },
+                  {
+                    label: 'Error',
+                    value: 'error',
+                  },
+                ],
+              },
+              {
+                name: 'content',
+                type: 'richText',
+                editor: lexicalEditor(),
+              },
+            ],
+            interfaceName: 'BannerBlock',
+          },
         ],
       }),
     ],
@@ -240,33 +272,6 @@ export default buildConfig({
   graphQL: {
     disablePlaygroundInProduction: false,
   },
-  onInit: async (payload) => {
-    Object.values(payload.collections).forEach(({ config, customIDType }) => {
-      console.log(config.slug, customIDType)
-    })
-
-    const existingDevUser = await payload.find({
-      collection: 'users',
-      where: {
-        email: {
-          equals: 'dev@payloadcms.com'
-        }
-      }
-    })
-
-    if (!existingDevUser.totalDocs) {
-      await payload.create({
-        collection: 'users',
-        data: {
-          email: 'dev@payloadcms.com',
-          firstName: 'sean',
-          lastName: 'spider',
-          password: 'test',
-          roles: ['admin']
-        }
-      })
-    }
-  },
   plugins: [
     formBuilderPlugin({
       formOverrides: {
@@ -280,11 +285,19 @@ export default buildConfig({
             },
           },
         ],
+        hooks: {
+          afterChange: [
+            ({ doc }) => {
+              revalidateTag(`form-${doc.title}`)
+              console.log(`Revalidated form: ${doc.title}`)
+            },
+          ],
+        },
       },
       formSubmissionOverrides: {
         hooks: {
           afterChange: [
-            ({ doc, req }) => {
+            async ({ doc, req }) => {
               req.payload.logger.info('IP of form submission')
               req.payload.logger.info({
                 allHeaders: req?.headers,
@@ -325,7 +338,7 @@ export default buildConfig({
                   })
                 }
               }
-              void sendSubmissionToHubSpot()
+              await sendSubmissionToHubSpot()
             },
           ],
         },
@@ -349,33 +362,16 @@ export default buildConfig({
         },
       },
     }),
-    // vercelBlobStorage({
-    //   cacheControlMaxAge: 60 * 60 * 24 * 365, // 1 year
-    //   collections: {
-    //     media: {
-    //       generateFileURL: ({ filename }) => `https://${process.env.BLOB_STORE_ID}/${filename}`,
-    //     },
-    //   },
-    //   enabled: Boolean(process.env.BLOB_STORAGE_ENABLED) || false,
-    //   token: process.env.BLOB_READ_WRITE_TOKEN || '',
-    // }),
-    s3Storage({
+    vercelBlobStorage({
+      cacheControlMaxAge: 60 * 60 * 24 * 365, // 1 year
       collections: {
         media: {
-          prefix: 'media',
+          generateFileURL: ({ filename }) => `https://${process.env.BLOB_STORE_ID}/${filename}`,
         },
       },
-      bucket: process.env.S3_BUCKET!,
-      config: {
-        forcePathStyle: true,
-        credentials: {
-          accessKeyId: process.env.S3_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
-        },
-        region: process.env.S3_REGION!,
-        endpoint: process.env.S3_ENDPOINT!,
-      },
-    })
+      enabled: Boolean(process.env.BLOB_STORAGE_ENABLED) || false,
+      token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    }),
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

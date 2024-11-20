@@ -1,5 +1,5 @@
 import config from '@payload-config'
-import { getPayloadHMR } from '@payloadcms/next/utilities'
+import { getPayload } from 'payload'
 import { draftMode } from 'next/headers.js'
 
 import type {
@@ -7,6 +7,7 @@ import type {
   CaseStudy,
   CommunityHelp,
   Footer,
+  Form,
   GetStarted,
   Industry,
   MainMenu,
@@ -19,7 +20,7 @@ import type {
 } from '../../payload-types.js'
 
 export const fetchGlobals = async (): Promise<{ footer: Footer; mainMenu: MainMenu }> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const mainMenu = await payload.findGlobal({
     slug: 'main-menu',
     depth: 1,
@@ -38,7 +39,7 @@ export const fetchGlobals = async (): Promise<{ footer: Footer; mainMenu: MainMe
 export const fetchPage = async (incomingSlugSegments: string[]): Promise<Page | null> => {
   const { isEnabled: draft } = await draftMode()
 
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const slugSegments = incomingSlugSegments || ['home']
   const slug = slugSegments.at(-1)
 
@@ -85,7 +86,7 @@ export const fetchPage = async (incomingSlugSegments: string[]): Promise<Page | 
 export const fetchPages = async (): Promise<
   Array<{ breadcrumbs: Page['breadcrumbs']; slug: Page['slug'] }>
 > => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const data = await payload.find({
     collection: 'pages',
     depth: 0,
@@ -117,7 +118,7 @@ export const fetchPages = async (): Promise<
 }
 
 export const fetchPosts = async (): Promise<Array<{ slug: Post['slug'] }>> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const data = await payload.find({
     collection: 'posts',
     depth: 0,
@@ -135,7 +136,7 @@ export const fetchPosts = async (): Promise<Array<{ slug: Post['slug'] }>> => {
 
 export const fetchBlogPosts = async (): Promise<Post[]> => {
   const currentDate = new Date()
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'posts',
@@ -154,7 +155,7 @@ export const fetchBlogPosts = async (): Promise<Post[]> => {
 
 export const fetchBlogPost = async (slug: string): Promise<Post> => {
   const { isEnabled: draft } = await draftMode()
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'posts',
@@ -181,7 +182,7 @@ export const fetchBlogPost = async (slug: string): Promise<Post> => {
 }
 
 export const fetchCaseStudies = async (): Promise<CaseStudy[]> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const data = await payload.find({
     collection: 'case-studies',
     depth: 0,
@@ -193,7 +194,7 @@ export const fetchCaseStudies = async (): Promise<CaseStudy[]> => {
 
 export const fetchCaseStudy = async (slug: string): Promise<CaseStudy> => {
   const { isEnabled: draft } = await draftMode()
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'case-studies',
@@ -222,7 +223,7 @@ export const fetchCaseStudy = async (slug: string): Promise<CaseStudy> => {
 export const fetchCommunityHelps = async (
   communityHelpType: CommunityHelp['communityHelpType'],
 ): Promise<Pick<CommunityHelp, 'slug'>[]> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'community-help',
@@ -238,7 +239,7 @@ export const fetchCommunityHelps = async (
 }
 
 export const fetchCommunityHelp = async (slug: string): Promise<CommunityHelp> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'community-help',
@@ -250,7 +251,7 @@ export const fetchCommunityHelp = async (slug: string): Promise<CommunityHelp> =
 }
 
 export const fetchRelatedThreads = async (path: string): Promise<CommunityHelp[]> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'community-help',
@@ -263,7 +264,7 @@ export const fetchRelatedThreads = async (path: string): Promise<CommunityHelp[]
 }
 
 export const fetchPartners = async (): Promise<Partner[]> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'partners',
@@ -280,7 +281,7 @@ export const fetchPartners = async (): Promise<Partner[]> => {
 
 export const fetchPartner = async (slug: string): Promise<Partner> => {
   const { isEnabled: draft } = await draftMode()
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const data = await payload.find({
     collection: 'partners',
@@ -307,7 +308,7 @@ export const fetchPartner = async (slug: string): Promise<Partner> => {
 }
 
 export const fetchPartnerProgram = async (): Promise<PartnerProgram> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const data = await payload.findGlobal({
     slug: 'partner-program',
     depth: 2,
@@ -322,7 +323,7 @@ export const fetchFilters = async (): Promise<{
   regions: Region[]
   specialties: Specialty[]
 }> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
 
   const industries = await payload.find({
     collection: 'industries',
@@ -353,11 +354,28 @@ export const fetchFilters = async (): Promise<{
 }
 
 export const fetchGetStarted = async (): Promise<GetStarted> => {
-  const payload = await getPayloadHMR({ config })
+  const payload = await getPayload({ config })
   const data = await payload.findGlobal({
     slug: 'get-started',
     depth: 1,
   })
 
   return data
+}
+
+export const fetchForm = async (name: string): Promise<Form> => {
+  const payload = await getPayload({ config })
+
+  const data = await payload.find({
+    collection: 'forms',
+    depth: 1,
+    limit: 1,
+    where: {
+      title: {
+        equals: name,
+      },
+    },
+  })
+
+  return data.docs[0]
 }

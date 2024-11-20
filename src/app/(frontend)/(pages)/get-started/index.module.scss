@@ -20,16 +20,8 @@
   }
 }
 
-.sidebarContent {
-  padding: 3rem 1.5rem;
-  position: relative;
-  & > * {
-    position: sticky;
-    top: calc(var(--page-padding-top) + 3rem);
-  }
-}
-
 .heading {
+  @include h2;
   margin: 0;
 }
 
@@ -96,4 +88,22 @@
       opacity: 1;
     }
   }
+}
+
+.sidebar {
+  position: relative;
+  padding-bottom: 3rem;
+  & > * {
+    position: sticky;
+    top: var(--page-padding-top);
+  }
+}
+
+.sidebarContent {
+  padding: 3rem 1.5rem 2rem;
+}
+
+.sidebarLinks {
+  list-style: none;
+  padding-left: 0;
 }
